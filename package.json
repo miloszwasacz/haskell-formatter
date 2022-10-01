@@ -1,8 +1,26 @@
 {
   "name": "haskell-formatter",
-  "displayName": "haskell-formatter",
-  "description": "",
-  "version": "0.0.1",
+  "displayName": "Haskell formatter",
+  "description": "Code formatter for Haskell extending hindent & stylish-haskell",
+  "keywords": [
+    "haskell",
+    "formatter",
+    "hindent",
+    "stylish-haskell"
+  ],
+  "license": "SEE LICENSE",
+  "homepage": "https://github.com/miloszwasacz/haskell-formatter/blob/master/README.md",
+  "author": {
+    "name" : "Miłosz Wąsacz",
+    "email" : "wasacz.dev@gmail.com",
+    "url" : "https://github.com/miloszwasacz"
+  },
+  "publisher": "wasacz-uob",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/miloszwasacz/haskell-formatter.git"
+  },
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.71.0"
   },

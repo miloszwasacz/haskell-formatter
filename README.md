@@ -1,8 +1,8 @@
-# haskell-formatter README
+# Haskell formatter
 
-This is the README for your extension "haskell-formatter". After writing up a brief description, we recommend including the following sections.
+VS Code formatter for Haskell extending [hindent](https://github.com/mihaimaruseac/hindent) & [stylish-haskell](https://github.com/haskell/stylish-haskell).
 
-## Features
+<!--TODO ## Features
 
 Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
 
@@ -10,13 +10,23 @@ For example if there is an image subfolder under your extension project workspac
 
 \!\[feature X\]\(images/feature-x.png\)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow. -->
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+This extension depends on [hindent](https://hackage.haskell.org/package/hindent) & [stylish-haskell](https://hackage.haskell.org/package/stylish-haskell) that you can install via stack:
+```shell
+stack install hindent
+stack install stylish-haskell
+```
+or cabal:
+```shell
+cabal install hindent
+cabal install stylish-haskell
+```
 
-## Extension Settings
+<!--TODO hindent & stylish-haskell args -->
+<!-- ## Extension Settings
 
 Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
 
@@ -25,47 +35,32 @@ For example:
 This extension contributes the following settings:
 
 * `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+* `myExtension.thing`: Set to `blah` to do something. -->
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+### Misidentifying `=` in guards
+Example:
+```haskell
+foo :: String -> String -> Double
+foo a b
+  | c == "Foo = 3" = 3.0
+  | c == "BarBaz = 2" = 2.0
+  where
+    c = a ++ b
+```
+Workaround:
+```haskell
+foo' :: String -> String -> Double
+foo' a b
+  | c == "Foo " ++ "=" ++ " 3" = 3.0
+  | c == "BarBaz " ++ "=" ++ " 2" = 2.0
+  where
+    c = a ++ b
+```
 
 ## Release Notes
-
-Users appreciate release notes as you update your extension.
+For detailed change list see _[CHANGELOG](CHANGELOG.md)_.
 
 ### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Initial release of Haskell Formatter.
