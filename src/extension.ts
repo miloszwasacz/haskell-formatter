@@ -36,14 +36,14 @@ export function activate(context: vscode.ExtensionContext) {
 				let result = document.getText();
 				//#region hindent
 				try {
-					result = childProcess.execSync(`hindent ${document.fileName}`).toString();
+					result = childProcess.execSync("hindent", { input: result }).toString();
 				} catch (e: any) {
 					return showErrorMessage("Error while executing hindent", e);
 				}
 				//#endregion
 				//#region stylish-haskell
 				try {
-					result = childProcess.execSync(`stylish-haskell ${document.fileName}`).toString();
+					result = childProcess.execSync("stylish-haskell", { input: result }).toString();
 				} catch (e: any) {
 					return showErrorMessage("Error while executing stylish-haskell", e);
 				}
@@ -72,9 +72,6 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(formatter, selectionFormatter);
 }
 
-// this method is called when your extension is deactivated
-export function deactivate() {}
-
 function showErrorMessage(msg: string, err: Error): never[] {
 	vscode.window.showErrorMessage(`${msg}: ${err.message}`);
 	return [];
@@ -82,9 +79,10 @@ function showErrorMessage(msg: string, err: Error): never[] {
 
 //FIXME Case `| abc == "x = y" = True`
 function alignEqualSigns(text: string): string {
+	const commentRegex = /\s*--.*/;
 	const regexps = [
-        /((?:(\s*\|\s*)(.+))+)/g,
-        /(?<=\s*where)(?:\n[^\n]+.+=.+$)+/gm
+        /((?:((--|\s)*\|\s*)(.+))+)/g,
+        /(--|\s)*where(?:\n[^\n]+.+=.+)+/g
     ];
 	for (const regex of regexps) {
 		for (const match of text.match(regex) ?? []) {
@@ -92,7 +90,7 @@ function alignEqualSigns(text: string): string {
 			if (lines.length > 0 && lines[0] === "") {
 				lines.shift();
 			}
-			const indices = lines.map((line) => line.indexOf(" = "));
+			const indices = lines.map((line) => (!commentRegex.test(line) ? line.indexOf(" = ") : -1));
 			const maxIndex = max(indices) ?? -1;
 			if (maxIndex === -1) {
 				continue;
@@ -101,7 +99,7 @@ function alignEqualSigns(text: string): string {
 			let newText = "";
 			for (const [line, index] of zip(lines, indices)) {
 				newText += "\n";
-				if (index !== -1) {
+				if (index !== -1 && !commentRegex.test(line)) {
 					newText += line.replace(" = ", addSpaces(" = ", maxIndex - index));
 				} else {
 					newText += line;
