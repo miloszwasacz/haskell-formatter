@@ -1,10 +1,11 @@
 import * as vscode from "vscode";
 import { child_process as childProcess } from "mz";
-import { max, zip } from "./helper";
+import { max, reversedString, zip } from "./helper";
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+	// eslint-disable-next-line no-console
 	console.log('"haskell-formatter" is now active');
 
 	const formatter = vscode.languages.registerDocumentFormattingEditProvider(
@@ -34,6 +35,8 @@ export function activate(context: vscode.ExtensionContext) {
 				//#endregion
 
 				let result = document.getText();
+				const commentSpaces = checkCommentSpaces(result);
+
 				//#region hindent
 				try {
 					result = childProcess.execSync("hindent", { input: result }).toString();
@@ -49,6 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 				//#endregion
 
+				result = applyCommentSpaces(result, commentSpaces);
 				result = alignEqualSigns(result);
 				return [vscode.TextEdit.replace(range, result)];
 			},
@@ -77,33 +81,27 @@ function showErrorMessage(msg: string, err: Error): never[] {
 	return [];
 }
 
+//#region Aligning `=`
 //FIXME Case `| abc == "x = y" = True`
 function alignEqualSigns(text: string): string {
 	const commentRegex = /\s*--.*/;
-	const regexps = [
-        /((?:((--|\s)*\|\s*)(.+))+)/g,
-        /(--|\s)*where(?:\n[^\n]+.+=.+)+/g
-    ];
+	const regexps = [/((?:((--|\s)*\|\s*)(.+))+)/g, /(--|\s)*where(?:\n[^\n]+.+=.+)+/g];
 	for (const regex of regexps) {
 		for (const match of text.match(regex) ?? []) {
 			const lines = match.split("\n");
-			if (lines.length > 0 && lines[0] === "") {
-				lines.shift();
-			}
+			if (lines.length > 0 && lines[0] === "")
+                lines.shift();
+
 			const indices = lines.map((line) => (!commentRegex.test(line) ? line.indexOf(" = ") : -1));
 			const maxIndex = max(indices) ?? -1;
-			if (maxIndex === -1) {
-				continue;
-			}
+			if (maxIndex === -1) continue;
 
 			let newText = "";
 			for (const [line, index] of zip(lines, indices)) {
 				newText += "\n";
-				if (index !== -1 && !commentRegex.test(line)) {
-					newText += line.replace(" = ", addSpaces(" = ", maxIndex - index));
-				} else {
-					newText += line;
-				}
+				if (index !== -1 && !commentRegex.test(line)) 
+                    newText += line.replace(" = ", addSpaces(" = ", maxIndex - index));
+				else newText += line;
 			}
 			text = text.replace(match, newText);
 		}
@@ -113,8 +111,41 @@ function alignEqualSigns(text: string): string {
 
 function addSpaces(text: string, count: number): string {
 	let result = "";
-	for (let i = 0; i < count; i++) {
-		result += " ";
-	}
+	for (let i = 0; i < count; i++)
+        result += " ";
 	return result + text;
 }
+//#endregion
+
+//#region Preserving comment \n
+const COMMENT = "--";
+
+function checkCommentSpaces(text: string): Set<number> {
+	const regex = RegExp(`^${COMMENT}[^\\S\\r\\n]*\\n[^\\S\\r\\n]*\\n`);
+
+	const indices: number[] = [];
+	let currentText = reversedString(text);
+	let total = 0;
+	let i = currentText.indexOf(COMMENT);
+	while (i !== -1) {
+		currentText = currentText.substring(i);
+		total++;
+		if (regex.test(currentText)) 
+            indices.push(total);
+		i = currentText.indexOf(COMMENT, COMMENT.length);
+	}
+	return new Set(indices.map((index) => total - index + 1));
+}
+
+function applyCommentSpaces(text: string, indices: Set<number>): string {
+	let i = text.indexOf(COMMENT);
+	let count = 0;
+	while (i !== -1) {
+		count++;
+		if (indices.has(count)) 
+            text = text.substring(0, i) + "\n" + text.substring(i);
+		i = text.indexOf(COMMENT, i + COMMENT.length);
+	}
+	return text;
+}
+//#endregion

@@ -11,16 +11,16 @@
   "license": "SEE LICENSE",
   "homepage": "https://github.com/miloszwasacz/haskell-formatter/blob/master/README.md",
   "author": {
-    "name" : "Miłosz Wąsacz",
-    "email" : "wasacz.dev@gmail.com",
-    "url" : "https://github.com/miloszwasacz"
+    "name": "Miłosz Wąsacz",
+    "email": "wasacz.dev@gmail.com",
+    "url": "https://github.com/miloszwasacz"
   },
   "publisher": "wasacz-uob",
   "repository": {
     "type": "git",
     "url": "https://github.com/miloszwasacz/haskell-formatter.git"
   },
-  "version": "1.0.1",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.71.0"
   },
@@ -33,10 +33,12 @@
   "main": "./out/extension.js",
   "contributes": {
     "languages": [
-        {
-            "id": "haskell",
-            "aliases": ["Haskell"]
-        }
+      {
+        "id": "haskell",
+        "aliases": [
+          "Haskell"
+        ]
+      }
     ]
   },
   "scripts": {

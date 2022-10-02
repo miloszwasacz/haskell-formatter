@@ -62,5 +62,13 @@ foo' a b
 ## Release Notes
 For detailed change list see _[CHANGELOG](CHANGELOG.md)_.
 
+### 1.0.1
+Minor bug fixes.
+
 ### 1.0.0
 Initial release of Haskell Formatter.
+
+---
+
+## Inspiration
+This extension is based on [stylish-hindent](https://github.com/CameronDiver/vscode-stylish-hindent) extension.

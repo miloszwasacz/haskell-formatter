@@ -5,6 +5,11 @@ All notable changes to the "haskell-formatter" extension will be documented in t
 ## [Unreleased]
 - Preformatting w/ hindent & stylish-haskell when formatting selection 
 
+## [1.0.1] - 2022-10-02
+### Fixed
+- Aligning `=` in commented lines.
+- Removing new line before comments.
+
 ## [1.0.0] - 2022-10-01
 ### Added
 - Preformatting w/ hindent & stylish-haskell when formatting whole document.
