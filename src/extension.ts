@@ -36,17 +36,18 @@ export function activate(context: vscode.ExtensionContext) {
 
 				let result = document.getText();
 				const commentSpaces = checkCommentSpaces(result);
+				const cwd = vscode.workspace.rootPath;
 
 				//#region hindent
 				try {
-					result = childProcess.execSync("hindent", { input: result }).toString();
+					result = childProcess.execSync("hindent", { input: result, cwd }).toString();
 				} catch (e: any) {
 					return showErrorMessage("Error while executing hindent", e);
 				}
 				//#endregion
 				//#region stylish-haskell
 				try {
-					result = childProcess.execSync("stylish-haskell", { input: result }).toString();
+					result = childProcess.execSync("stylish-haskell", { input: result, cwd }).toString();
 				} catch (e: any) {
 					return showErrorMessage("Error while executing stylish-haskell", e);
 				}
@@ -90,7 +91,7 @@ function alignEqualSigns(text: string): string {
 		for (const match of text.match(regex) ?? []) {
 			const lines = match.split("\n");
 			if (lines.length > 0 && lines[0] === "")
-                lines.shift();
+				lines.shift();
 
 			const indices = lines.map((line) => (!commentRegex.test(line) ? line.indexOf(" = ") : -1));
 			const maxIndex = max(indices) ?? -1;
@@ -99,8 +100,8 @@ function alignEqualSigns(text: string): string {
 			let newText = "";
 			for (const [line, index] of zip(lines, indices)) {
 				newText += "\n";
-				if (index !== -1 && !commentRegex.test(line)) 
-                    newText += line.replace(" = ", addSpaces(" = ", maxIndex - index));
+				if (index !== -1 && !commentRegex.test(line))
+					newText += line.replace(" = ", addSpaces(" = ", maxIndex - index));
 				else newText += line;
 			}
 			text = text.replace(match, newText);
@@ -112,7 +113,7 @@ function alignEqualSigns(text: string): string {
 function addSpaces(text: string, count: number): string {
 	let result = "";
 	for (let i = 0; i < count; i++)
-        result += " ";
+		result += " ";
 	return result + text;
 }
 //#endregion
@@ -130,8 +131,8 @@ function checkCommentSpaces(text: string): Set<number> {
 	while (i !== -1) {
 		currentText = currentText.substring(i);
 		total++;
-		if (regex.test(currentText)) 
-            indices.push(total);
+		if (regex.test(currentText))
+			indices.push(total);
 		i = currentText.indexOf(COMMENT, COMMENT.length);
 	}
 	return new Set(indices.map((index) => total - index + 1));
@@ -142,8 +143,8 @@ function applyCommentSpaces(text: string, indices: Set<number>): string {
 	let count = 0;
 	while (i !== -1) {
 		count++;
-		if (indices.has(count)) 
-            text = text.substring(0, i) + "\n" + text.substring(i);
+		if (indices.has(count))
+			text = text.substring(0, i) + "\n" + text.substring(i);
 		i = text.indexOf(COMMENT, i + COMMENT.length);
 	}
 	return text;
