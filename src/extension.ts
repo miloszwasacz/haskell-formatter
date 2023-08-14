@@ -36,7 +36,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 				let result = document.getText();
 				const commentSpaces = checkCommentSpaces(result);
-				const cwd = vscode.workspace.rootPath;
+				let cwd: string | undefined = "."
+				const dirs = vscode.workspace.workspaceFolders;
+				if (dirs !== undefined && dirs.length > 0) {
+					cwd = dirs[0]?.uri?.fsPath;
+				}
 
 				//#region hindent
 				try {
